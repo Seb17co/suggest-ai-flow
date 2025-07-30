@@ -21,7 +21,7 @@ interface Suggestion {
   created_at: string;
   profiles: {
     full_name: string;
-  };
+  } | null;
 }
 
 interface Profile {
@@ -73,16 +73,35 @@ const Admin = () => {
 
   const fetchSuggestions = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get all suggestions
+      const { data: suggestionsData, error: suggestionsError } = await supabase
         .from('suggestions')
-        .select(`
-          *,
-          profiles:user_id(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setSuggestions(data || []);
+      if (suggestionsError) throw suggestionsError;
+
+      // Then get all profiles for the users who made suggestions
+      const userIds = suggestionsData?.map(s => s.user_id) || [];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of user_id to profile for quick lookup
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+
+      // Combine the data
+      const typedSuggestions = (suggestionsData || []).map(item => ({
+        ...item,
+        status: item.status as 'pending' | 'approved' | 'rejected',
+        ai_conversation: (item.ai_conversation as any) || [],
+        profiles: profilesMap.get(item.user_id) || null
+      }));
+      
+      setSuggestions(typedSuggestions);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
       toast.error('Failed to load suggestions');

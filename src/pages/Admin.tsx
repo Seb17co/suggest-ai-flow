@@ -19,6 +19,7 @@ interface Suggestion {
   status: 'pending' | 'approved' | 'rejected';
   ai_conversation: Array<{ role: 'user' | 'assistant'; content: string }>;
   admin_notes?: string;
+  prd?: string | null;
   created_at: string;
   profiles: {
     full_name: string;
@@ -110,7 +111,11 @@ const Admin = () => {
     }
   };
 
-  const updateSuggestionStatus = async (suggestionId: string, status: 'approved' | 'rejected', notes: string) => {
+  const updateSuggestionStatus = async (
+    suggestion: Suggestion,
+    status: 'approved' | 'rejected',
+    notes: string
+  ) => {
     setActionLoading(true);
     try {
       const { error } = await supabase
@@ -120,9 +125,31 @@ const Admin = () => {
           admin_notes: notes.trim() || null,
           admin_id: user?.id
         })
-        .eq('id', suggestionId);
+        .eq('id', suggestion.id);
 
       if (error) throw error;
+
+      if (status === 'approved') {
+        try {
+          const { data: prdData, error: prdError } = await supabase.functions.invoke('generate-prd', {
+            body: {
+              title: suggestion.title,
+              description: suggestion.description,
+              aiConversation: suggestion.ai_conversation
+            }
+          });
+
+          if (prdError) throw prdError;
+
+          await supabase
+            .from('suggestions')
+            .update({ prd: prdData.prd as string })
+            .eq('id', suggestion.id);
+        } catch (prdErr) {
+          console.error('Error generating PRD:', prdErr);
+          toast.error('Failed to generate PRD');
+        }
+      }
 
       toast.success(`Suggestion ${status} successfully`);
       await fetchSuggestions();
@@ -361,6 +388,16 @@ const Admin = () => {
                                   )}
                                 </ScrollArea>
                               </div>
+                              {suggestion.prd && (
+                                <div>
+                                  <h4 className="font-semibold mb-2">PRD</h4>
+                                  <ScrollArea className="h-64 border rounded-lg p-3">
+                                    <pre className="text-sm whitespace-pre-wrap">
+                                      {suggestion.prd}
+                                    </pre>
+                                  </ScrollArea>
+                                </div>
+                              )}
                             </div>
                             
                             {/* Admin Actions */}
@@ -377,7 +414,7 @@ const Admin = () => {
                               
                               <div className="space-y-2">
                                 <Button
-                                  onClick={() => updateSuggestionStatus(suggestion.id, 'approved', adminNotes)}
+                                  onClick={() => updateSuggestionStatus(suggestion, 'approved', adminNotes)}
                                   disabled={actionLoading}
                                   className="w-full bg-green-600 hover:bg-green-700"
                                 >
@@ -385,7 +422,7 @@ const Admin = () => {
                                   Godkend forslag
                                 </Button>
                                 <Button
-                                  onClick={() => updateSuggestionStatus(suggestion.id, 'rejected', adminNotes)}
+                                  onClick={() => updateSuggestionStatus(suggestion, 'rejected', adminNotes)}
                                   disabled={actionLoading}
                                   variant="destructive"
                                   className="w-full"

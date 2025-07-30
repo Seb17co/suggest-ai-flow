@@ -26,9 +26,9 @@ interface ChatInterfaceProps {
 
 const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: `Jeg kan se, at du vil arbejde med: "${suggestion.title}". Lad mig hjælpe med at forbedre idéen. ${suggestion.description}
+    { role: 'assistant', content: `Hej! Jeg kan se, at du gerne vil arbejde med: "${suggestion.title}". ${suggestion.description}
 
-Hvilket problem løser dette for virksomheden eller kunderne?` },
+Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade sig gøre. Hvilket problem vil du gerne løse?` },
     ...suggestion.ai_conversation
   ]);
   const [input, setInput] = useState('');

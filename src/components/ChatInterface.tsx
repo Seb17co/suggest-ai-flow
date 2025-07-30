@@ -5,13 +5,19 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
-import { Send, Bot, User, CheckCircle, ArrowLeft, Clock } from 'lucide-react';
+import { Send, Bot, User, CheckCircle, ArrowLeft, Clock, FileText, Image, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { FileUpload, AttachmentPreview } from '@/components/FileUpload';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  attachments?: Array<{
+    url: string;
+    name: string;
+    type: string;
+  }>;
 }
 
 interface ChatInterfaceProps {
@@ -41,6 +47,11 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
     const userMessages = suggestion.ai_conversation.filter(msg => msg.role === 'user');
     return userMessages.length;
   });
+  const [pendingAttachments, setPendingAttachments] = useState<Array<{
+    url: string;
+    name: string;
+    type: string;
+  }>>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,26 +60,49 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
     }
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading || conversationRound >= 5) return;
+  const handleFileUploaded = (fileUrl: string, fileName: string, fileType: string) => {
+    setPendingAttachments(prev => [...prev, { url: fileUrl, name: fileName, type: fileType }]);
+  };
 
-    const userMessage = { role: 'user' as const, content: input.trim() };
+  const removePendingAttachment = (index: number) => {
+    setPendingAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const sendMessage = async () => {
+    if ((!input.trim() && pendingAttachments.length === 0) || loading || conversationRound >= 5) return;
+
+    const messageContent = input.trim() || (pendingAttachments.length > 0 ? 'Har vedhæftet filer til gennemgang' : '');
+    const userMessage: Message = { 
+      role: 'user' as const, 
+      content: messageContent,
+      attachments: pendingAttachments.length > 0 ? [...pendingAttachments] : undefined
+    };
+    
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
+    setPendingAttachments([]);
     setLoading(true);
 
     try {
+      // Create context for AI including attachments info
+      const messageForAI = {
+        role: 'user' as const,
+        content: pendingAttachments.length > 0 
+          ? `${messageContent}\n\nVedhæftede filer: ${pendingAttachments.map(att => att.name).join(', ')}`
+          : messageContent
+      };
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
-          messages: newMessages,
+          messages: [...messages, messageForAI],
           suggestionId: suggestion.id
         }
       });
 
       if (error) throw error;
 
-      const aiMessage = { role: 'assistant' as const, content: data.message };
+      const aiMessage: Message = { role: 'assistant' as const, content: data.message };
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
       setConversationRound(data.conversationRound || conversationRound + 1);
@@ -76,7 +110,8 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       // Update the suggestion in the database
       const conversationData = updatedMessages.slice(1).map(msg => ({
         role: msg.role,
-        content: msg.content
+        content: msg.content,
+        attachments: msg.attachments
       }));
       
       await supabase
@@ -137,6 +172,45 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderAttachment = (attachment: { url: string; name: string; type: string }) => {
+    const isImage = attachment.type.startsWith('image/');
+    
+    return (
+      <div key={attachment.url} className="mt-2 max-w-xs">
+        {isImage ? (
+          <div className="relative">
+            <img 
+              src={attachment.url} 
+              alt={attachment.name}
+              className="rounded-lg max-w-full h-auto max-h-48 object-cover"
+            />
+            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+              <Image className="w-3 h-3" />
+              <span className="truncate">{attachment.name}</span>
+            </div>
+          </div>
+        ) : (
+          <Card className="p-2 bg-muted/30 border-dashed">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm truncate">{attachment.name}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-6 h-6 p-0"
+                onClick={() => window.open(attachment.url, '_blank')}
+              >
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+            </div>
+          </Card>
+        )}
+      </div>
+    );
   };
 
   if (isComplete) {
@@ -233,6 +307,15 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.attachments && message.attachments.length > 0 && (
+                      <div className="mt-2 space-y-2">
+                        {message.attachments.map((attachment, attIndex) => (
+                          <div key={attIndex}>
+                            {renderAttachment(attachment)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -258,6 +341,24 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
         </ScrollArea>
 
         <div className="space-y-2">
+          {/* Pending attachments preview */}
+          {pendingAttachments.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">Vedhæftede filer:</p>
+              <div className="space-y-1">
+                {pendingAttachments.map((attachment, index) => (
+                  <AttachmentPreview
+                    key={index}
+                    fileName={attachment.name}
+                    fileType={attachment.type}
+                    fileUrl={attachment.url}
+                    onRemove={() => removePendingAttachment(index)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div className="flex gap-2">
             <Input
               placeholder={isConversationComplete ? "Samtale afsluttet - indsend idé" : "Fortsæt samtalen..."}
@@ -266,9 +367,13 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
               onKeyPress={handleKeyPress}
               disabled={loading || isConversationComplete}
             />
+            <FileUpload
+              onFileUploaded={handleFileUploaded}
+              disabled={loading || isConversationComplete}
+            />
             <Button 
               onClick={sendMessage} 
-              disabled={loading || !input.trim() || isConversationComplete}
+              disabled={loading || (!input.trim() && pendingAttachments.length === 0) || isConversationComplete}
             >
               <Send className="w-4 h-4" />
             </Button>

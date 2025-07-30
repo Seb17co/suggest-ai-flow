@@ -46,11 +46,13 @@ export type Database = {
           admin_id: string | null
           admin_notes: string | null
           ai_conversation: Json | null
+          department: string
           created_at: string
           description: string
           id: string
           status: string | null
           title: string
+          prd: string | null
           updated_at: string
           user_id: string
         }
@@ -58,11 +60,13 @@ export type Database = {
           admin_id?: string | null
           admin_notes?: string | null
           ai_conversation?: Json | null
+          department: string
           created_at?: string
           description: string
           id?: string
           status?: string | null
           title: string
+          prd?: string | null
           updated_at?: string
           user_id: string
         }
@@ -70,11 +74,13 @@ export type Database = {
           admin_id?: string | null
           admin_notes?: string | null
           ai_conversation?: Json | null
+          department?: string
           created_at?: string
           description?: string
           id?: string
           status?: string | null
           title?: string
+          prd?: string | null
           updated_at?: string
           user_id?: string
         }

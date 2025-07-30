@@ -19,6 +19,7 @@ interface Suggestion {
   ai_conversation: any[];
   created_at: string;
   admin_notes?: string;
+  prd?: string | null;
 }
 
 interface Profile {
@@ -242,6 +243,14 @@ const Dashboard = () => {
                           <div className="bg-muted p-3 rounded-lg">
                             <p className="text-sm font-medium mb-1">Admin-noter:</p>
                             <p className="text-sm text-muted-foreground">{suggestion.admin_notes}</p>
+                          </div>
+                        )}
+                        {suggestion.prd && (
+                          <div className="bg-muted p-3 rounded-lg mt-2">
+                            <p className="text-sm font-medium mb-1">PRD:</p>
+                            <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+                              {suggestion.prd}
+                            </p>
                           </div>
                         )}
                         <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">

@@ -3,11 +3,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Settings, Lightbulb, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { LogOut, Settings, Lightbulb, Clock, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import SuggestionForm from '@/components/SuggestionForm';
 import ChatInterface from '@/components/ChatInterface';
+import { useNavigate } from 'react-router-dom';
 
 interface Suggestion {
   id: string;
@@ -32,6 +33,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeSuggestion, setActiveSuggestion] = useState<Suggestion | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserData();
@@ -125,7 +127,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">Loading LUXKIDS dashboard...</p>
         </div>
       </div>
     );
@@ -151,17 +153,37 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen p-4" style={{ background: 'var(--gradient-subtle)' }}>
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
+        {/* Luxkids Branded Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {profile?.full_name || user?.email}!
-            </h1>
-            <p className="text-muted-foreground">Share your ideas and let AI help you refine them</p>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">LK</span>
+              </div>
+              <div>
+                <a 
+                  href="https://luxkids.dk" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  <h1 className="text-2xl font-bold text-foreground">LUXKIDS</h1>
+                  <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                </a>
+                <p className="text-sm text-muted-foreground">Suggestion Platform</p>
+              </div>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-border"></div>
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                Welcome back, {profile?.full_name || user?.email}!
+              </h2>
+              <p className="text-sm text-muted-foreground">Share your ideas for børnetøj and let AI help you refine them</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {profile?.role === 'admin' && (
-              <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+              <Button variant="outline" onClick={() => navigate('/admin')}>
                 <Settings className="w-4 h-4 mr-2" />
                 Admin Panel
               </Button>
@@ -172,6 +194,31 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Luxkids Info Banner */}
+        <Card className="bg-gradient-to-r from-primary/5 to-primary-light border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-primary mb-1">Share Your Ideas for LUXKIDS</h3>
+                <p className="text-sm text-muted-foreground">
+                  Help us improve our children's clothing brands. Share suggestions for mikk-line, THE NEW, soft gallery, and all our other brands.
+                </p>
+              </div>
+              <a 
+                href="https://luxkids.dk" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hidden md:block"
+              >
+                <Button variant="outline" size="sm">
+                  Shop Now
+                  <ExternalLink className="w-3 h-3 ml-1" />
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-6">
@@ -186,7 +233,7 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-primary" />
-                  Your Suggestions
+                  Your LUXKIDS Suggestions
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -194,7 +241,7 @@ const Dashboard = () => {
                   <div className="text-center py-8">
                     <Lightbulb className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      No suggestions yet. Create your first idea to get started!
+                      No suggestions yet. Share your first idea for LUXKIDS to get started!
                     </p>
                   </div>
                 ) : (
@@ -225,7 +272,7 @@ const Dashboard = () => {
                         </p>
                         {suggestion.admin_notes && (
                           <div className="bg-muted p-3 rounded-lg">
-                            <p className="text-sm font-medium mb-1">Admin Notes:</p>
+                            <p className="text-sm font-medium mb-1">LUXKIDS Team Notes:</p>
                             <p className="text-sm text-muted-foreground">{suggestion.admin_notes}</p>
                           </div>
                         )}
@@ -246,6 +293,17 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Luxkids Footer */}
+        <div className="text-center py-6 border-t">
+          <p className="text-sm text-muted-foreground">
+            © 2025 LUXKIDS ApS • 
+            <a href="https://luxkids.dk" target="_blank" rel="noopener noreferrer" className="hover:text-primary ml-1">
+              luxkids.dk
+            </a>
+            • Børnetøj & Customer Suggestions
+          </p>
         </div>
       </div>
     </div>

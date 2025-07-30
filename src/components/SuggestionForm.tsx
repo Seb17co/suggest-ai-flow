@@ -28,17 +28,19 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
     <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-primary" />
-          Share Your Idea
+          <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+            <span className="text-white text-xs font-bold">LK</span>
+          </div>
+          Share Your LUXKIDS Idea
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Suggestion Title</Label>
             <Input
               id="title"
-              placeholder="Give your suggestion a clear title"
+              placeholder="E.g., New børnetøj design idea, product improvement..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -48,7 +50,7 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              placeholder="Describe your idea in detail. Our AI will help you refine it!"
+              placeholder="Describe your idea for LUXKIDS børnetøj brands (mikk-line, THE NEW, soft gallery, etc.). Our AI will help you refine it!"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -60,9 +62,12 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
             className="w-full" 
             disabled={loading || !title.trim() || !description.trim()}
           >
-            {loading ? 'Creating...' : 'Start AI Collaboration'}
+            {loading ? 'Creating suggestion...' : 'Start AI Collaboration'}
             <Send className="ml-2 w-4 h-4" />
           </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Your ideas help improve børnetøj across all LUXKIDS brands
+          </p>
         </form>
       </CardContent>
     </Card>

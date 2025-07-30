@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Lightbulb, ArrowRight } from 'lucide-react';
+import { Lightbulb, ArrowRight, ExternalLink } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -53,20 +53,30 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center p-4" 
          style={{ background: 'var(--gradient-subtle)' }}>
       <div className="w-full max-w-md">
+        {/* Luxkids Branded Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="p-3 rounded-full bg-primary/10">
-              <Lightbulb className="w-8 h-8 text-primary" />
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-hover rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-2xl">LK</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">AI Suggestions</h1>
-          <p className="text-muted-foreground">Share your ideas and let AI help you refine them</p>
+          <a 
+            href="https://luxkids.dk" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 hover:opacity-80 transition-opacity mb-2"
+          >
+            <h1 className="text-3xl font-bold text-foreground">LUXKIDS</h1>
+            <ExternalLink className="w-5 h-5 text-muted-foreground" />
+          </a>
+          <p className="text-muted-foreground mb-2">Suggestion Platform</p>
+          <p className="text-sm text-muted-foreground">Share your ideas for børnetøj and let AI help you refine them</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
           <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>Sign in to your account or create a new one</CardDescription>
+            <CardTitle>Welcome to LUXKIDS</CardTitle>
+            <CardDescription>Join our suggestion platform to share ideas for children's clothing</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
@@ -100,7 +110,7 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {loading ? 'Signing in...' : 'Sign In to LUXKIDS'}
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </form>
@@ -142,7 +152,7 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating account...' : 'Create Account'}
+                    {loading ? 'Creating account...' : 'Join LUXKIDS Platform'}
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </form>
@@ -150,6 +160,26 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Luxkids Info Footer */}
+        <div className="text-center mt-6">
+          <p className="text-xs text-muted-foreground mb-2">
+            Help improve børnetøj across all our brands:
+          </p>
+          <p className="text-xs text-muted-foreground">
+            mikk-line • THE NEW • soft gallery • fabelab • petit piao • pom pom • minipop
+          </p>
+          <div className="mt-4">
+            <a 
+              href="https://luxkids.dk" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-primary"
+            >
+              Visit luxkids.dk to shop our collections
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

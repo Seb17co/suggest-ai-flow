@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* AI Suggestions Platform Design System - Professional SaaS Interface */
 
 @layer base {
   :root {
@@ -17,24 +15,52 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary brand colors - Professional blue */
+    --primary: 231 48% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 231 48% 42%;
+    --primary-light: 231 48% 95%;
 
-    --secondary: 210 40% 96.1%;
+    /* Secondary colors - Soft purple accent */
+    --secondary: 250 40% 96%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 250 40% 96%;
+    --accent-foreground: 231 48% 48%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 231 48% 48%;
+
+    /* Success colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 95%;
+
+    /* Warning colors */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 95%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(231 48% 48%), hsl(260 48% 52%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(250 40% 98%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(250 40% 99%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 16px hsl(231 48% 48% / 0.08);
+    --shadow-medium: 0 8px 32px hsl(231 48% 48% / 0.12);
+    --shadow-strong: 0 16px 48px hsl(231 48% 48% / 0.16);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease-out;
 
     --radius: 0.5rem;
 

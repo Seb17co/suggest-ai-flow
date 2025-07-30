@@ -14,6 +14,7 @@ interface Suggestion {
   id: string;
   title: string;
   description: string;
+  department: string;
   status: 'pending' | 'approved' | 'rejected';
   ai_conversation: any[];
   created_at: string;
@@ -71,7 +72,11 @@ const Dashboard = () => {
     }
   };
 
-  const createSuggestion = async (title: string, description: string) => {
+  const createSuggestion = async (
+    title: string,
+    description: string,
+    department: string
+  ) => {
     if (!user) return;
 
     try {
@@ -82,6 +87,7 @@ const Dashboard = () => {
           user_id: user.id,
           title,
           description,
+          department,
           status: 'pending'
         })
         .select()
@@ -218,14 +224,17 @@ const Dashboard = () => {
                           <h3 className="font-semibold">{suggestion.title}</h3>
                           <div className="flex items-center gap-2">
                             {getStatusIcon(suggestion.status)}
-                            <Badge 
-                              variant="secondary" 
+                            <Badge
+                              variant="secondary"
                               className={getStatusColor(suggestion.status)}
                             >
                               {suggestion.status}
                             </Badge>
                           </div>
                         </div>
+                        <p className="text-xs mb-1 capitalize text-muted-foreground">
+                          Afdeling: {suggestion.department}
+                        </p>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                           {suggestion.description}
                         </p>

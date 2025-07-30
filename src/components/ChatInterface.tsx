@@ -18,6 +18,7 @@ interface ChatInterfaceProps {
     id: string;
     title: string;
     description: string;
+    department: string;
     ai_conversation: Message[];
   };
   onBack: () => void;
@@ -157,7 +158,7 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground bg-primary-light p-3 rounded-lg">
-          <strong>Arbejder med:</strong> {suggestion.title}
+          <strong>Arbejder med:</strong> {suggestion.title} ({suggestion.department})
         </div>
         
         <ScrollArea className="h-96 pr-4">

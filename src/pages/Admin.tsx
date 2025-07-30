@@ -15,6 +15,7 @@ interface Suggestion {
   id: string;
   title: string;
   description: string;
+  department: string;
   status: 'pending' | 'approved' | 'rejected';
   ai_conversation: Array<{ role: 'user' | 'assistant'; content: string }>;
   admin_notes?: string;
@@ -98,7 +99,8 @@ const Admin = () => {
         ...item,
         status: item.status as 'pending' | 'approved' | 'rejected',
         ai_conversation: (item.ai_conversation as any) || [],
-        profiles: profilesMap.get(item.user_id) || null
+        profiles: profilesMap.get(item.user_id) || null,
+        department: item.department
       }));
       
       setSuggestions(typedSuggestions);
@@ -279,6 +281,9 @@ const Admin = () => {
                         <p className="text-sm text-muted-foreground mb-2">
                           af {suggestion.profiles?.full_name || 'Ukendt bruger'}
                         </p>
+                        <p className="text-xs text-muted-foreground mb-2 capitalize">
+                          Afdeling: {suggestion.department}
+                        </p>
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {suggestion.description}
                         </p>
@@ -319,8 +324,11 @@ const Admin = () => {
                             <div className="space-y-4">
                               <div>
                                 <h4 className="font-semibold mb-2">Oprindeligt forslag</h4>
-                                <div className="p-3 bg-muted rounded-lg">
+                                <div className="p-3 bg-muted rounded-lg space-y-2">
                                   <p className="text-sm">{suggestion.description}</p>
+                                  <p className="text-xs text-muted-foreground capitalize">
+                                    Afdeling: {suggestion.department}
+                                  </p>
                                 </div>
                               </div>
                               
@@ -414,12 +422,15 @@ const Admin = () => {
               <div className="space-y-3">
                 {reviewedSuggestions.slice(0, 5).map((suggestion) => (
                   <div key={suggestion.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{suggestion.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        af {suggestion.profiles?.full_name || 'Ukendt bruger'}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="font-medium">{suggestion.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      af {suggestion.profiles?.full_name || 'Ukendt bruger'}
+                    </p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      Afdeling: {suggestion.department}
+                    </p>
+                  </div>
                     <Badge className={getStatusColor(suggestion.status)} variant="outline">
                       {getStatusIcon(suggestion.status)}
                       <span className="ml-1">{suggestion.status}</span>

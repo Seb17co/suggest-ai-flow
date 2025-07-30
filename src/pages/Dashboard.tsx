@@ -127,7 +127,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading LUXKIDS dashboard...</p>
+          <p className="text-muted-foreground">Indlæser oversigt...</p>
         </div>
       </div>
     );
@@ -153,32 +153,15 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen p-4" style={{ background: 'var(--gradient-subtle)' }}>
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Luxkids Branded Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">LK</span>
-              </div>
-              <div>
-                <a 
-                  href="https://luxkids.dk" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                >
-                  <h1 className="text-2xl font-bold text-foreground">LUXKIDS</h1>
-                  <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                </a>
-                <p className="text-sm text-muted-foreground">Suggestion Platform</p>
-              </div>
-            </div>
+            <h1 className="text-2xl font-bold text-foreground">Forslagsplatform</h1>
             <div className="hidden md:block w-px h-12 bg-border"></div>
             <div>
               <h2 className="text-xl font-semibold text-foreground">
-                Welcome back, {profile?.full_name || user?.email}!
+                Velkommen tilbage, {profile?.full_name || user?.email}!
               </h2>
-              <p className="text-sm text-muted-foreground">Share your ideas for børnetøj and let AI help you refine them</p>
+              <p className="text-sm text-muted-foreground">Del dine idéer til børnetøj og lad AI hjælpe med at forbedre dem</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -195,30 +178,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Luxkids Info Banner */}
-        <Card className="bg-gradient-to-r from-primary/5 to-primary-light border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-primary mb-1">Share Your Ideas for LUXKIDS</h3>
-                <p className="text-sm text-muted-foreground">
-                  Help us improve our children's clothing brands. Share suggestions for mikk-line, THE NEW, soft gallery, and all our other brands.
-                </p>
-              </div>
-              <a 
-                href="https://luxkids.dk" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden md:block"
-              >
-                <Button variant="outline" size="sm">
-                  Shop Now
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </Button>
-              </a>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-6">
@@ -233,7 +192,7 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-primary" />
-                  Your LUXKIDS Suggestions
+                  Dine forslag
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -241,7 +200,7 @@ const Dashboard = () => {
                   <div className="text-center py-8">
                     <Lightbulb className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      No suggestions yet. Share your first idea for LUXKIDS to get started!
+                      Ingen forslag endnu. Del din første idé for at komme i gang!
                     </p>
                   </div>
                 ) : (
@@ -272,17 +231,17 @@ const Dashboard = () => {
                         </p>
                         {suggestion.admin_notes && (
                           <div className="bg-muted p-3 rounded-lg">
-                            <p className="text-sm font-medium mb-1">LUXKIDS Team Notes:</p>
+                            <p className="text-sm font-medium mb-1">Admin-noter:</p>
                             <p className="text-sm text-muted-foreground">{suggestion.admin_notes}</p>
                           </div>
                         )}
                         <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
                           <span>
-                            Created: {new Date(suggestion.created_at).toLocaleDateString()}
+                            Oprettet: {new Date(suggestion.created_at).toLocaleDateString()}
                           </span>
                           {suggestion.status === 'pending' && suggestion.ai_conversation.length === 0 && (
                             <Button size="sm" variant="outline">
-                              Continue with AI
+                              Fortsæt med AI
                             </Button>
                           )}
                         </div>
@@ -295,15 +254,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Luxkids Footer */}
         <div className="text-center py-6 border-t">
-          <p className="text-sm text-muted-foreground">
-            © 2025 LUXKIDS ApS • 
-            <a href="https://luxkids.dk" target="_blank" rel="noopener noreferrer" className="hover:text-primary ml-1">
-              luxkids.dk
-            </a>
-            • Børnetøj & Customer Suggestions
-          </p>
+          <p className="text-sm text-muted-foreground">© 2025 Internt værktøj</p>
         </div>
       </div>
     </div>

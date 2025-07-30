@@ -26,9 +26,9 @@ interface ChatInterfaceProps {
 
 const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: `I see you want to work on: "${suggestion.title}". Let me help you refine this idea. ${suggestion.description}
+    { role: 'assistant', content: `Jeg kan se, at du vil arbejde med: "${suggestion.title}". Lad mig hjælpe med at forbedre idéen. ${suggestion.description}
 
-What specific problem does this solve for your company or customers?` },
+Hvilket problem løser dette for virksomheden eller kunderne?` },
     ...suggestion.ai_conversation
   ]);
   const [input, setInput] = useState('');
@@ -78,7 +78,7 @@ What specific problem does this solve for your company or customers?` },
 
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error('Kunne ikke sende beskeden. Prøv igen.');
     } finally {
       setLoading(false);
     }
@@ -110,7 +110,7 @@ What specific problem does this solve for your company or customers?` },
         .eq('id', suggestion.id);
 
       setIsComplete(true);
-      toast.success('Great! Your refined suggestion has been submitted for review.');
+      toast.success('Fint! Dit forbedrede forslag er sendt til gennemgang.');
       
       setTimeout(() => {
         onComplete();
@@ -118,7 +118,7 @@ What specific problem does this solve for your company or customers?` },
       
     } catch (error) {
       console.error('Error completing suggestion:', error);
-      toast.error('Failed to submit suggestion. Please try again.');
+      toast.error('Kunne ikke indsende forslaget. Prøv igen.');
     } finally {
       setLoading(false);
     }
@@ -129,10 +129,10 @@ What specific problem does this solve for your company or customers?` },
       <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
         <CardContent className="p-8 text-center">
           <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Suggestion Submitted!</h3>
+          <h3 className="text-xl font-semibold mb-2">Forslag indsendt!</h3>
           <p className="text-muted-foreground">
-            Your refined idea has been sent to the admin team for review. 
-            You'll be notified once a decision is made.
+            Din forbedrede idé er sendt til admin-teamet til gennemgang.
+            Du får besked, når der er truffet en beslutning.
           </p>
         </CardContent>
       </Card>
@@ -149,15 +149,15 @@ What specific problem does this solve for your company or customers?` },
             </Button>
             <CardTitle className="flex items-center gap-2">
               <Bot className="w-5 h-5 text-primary" />
-              AI Collaboration
+              AI-samarbejde
             </CardTitle>
           </div>
-          <Badge variant="secondary">Refining Idea</Badge>
+          <Badge variant="secondary">Forbedrer idé</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground bg-primary-light p-3 rounded-lg">
-          <strong>Working on:</strong> {suggestion.title}
+          <strong>Arbejder med:</strong> {suggestion.title}
         </div>
         
         <ScrollArea className="h-96 pr-4">
@@ -221,7 +221,7 @@ What specific problem does this solve for your company or customers?` },
 
         <div className="flex gap-2">
           <Input
-            placeholder="Continue the conversation..."
+            placeholder="Fortsæt samtalen..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -240,11 +240,11 @@ What specific problem does this solve for your company or customers?` },
             disabled={loading || messages.length < 3}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
-            Idea is Complete - Submit for Review
+            Idéen er færdig - indsend til vurdering
           </Button>
           {messages.length < 3 && (
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              Continue the conversation to refine your idea before submitting
+              Fortsæt samtalen for at forbedre idéen før indsendelse
             </p>
           )}
         </div>

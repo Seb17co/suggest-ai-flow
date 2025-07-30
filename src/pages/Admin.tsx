@@ -177,65 +177,23 @@ const Admin = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-4">
-              {/* Luxkids Logo/Brand Area */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-lg">LK</span>
-                </div>
-                <div>
-                  <a 
-                    href="https://luxkids.dk" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                  >
-                    <h1 className="text-2xl font-bold text-foreground">LUXKIDS</h1>
-                    <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                  </a>
-                  <p className="text-sm text-muted-foreground">Børnetøj & Administration</p>
-                </div>
-              </div>
+              <h1 className="text-2xl font-bold text-foreground">Forslagsplatform</h1>
             </div>
             <div className="hidden md:block w-px h-12 bg-border"></div>
             <div>
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                 <Shield className="w-6 h-6 text-primary" />
-                Admin Dashboard
+                Admin-panel
               </h2>
-              <p className="text-sm text-muted-foreground">Manage suggestions and user ideas</p>
+              <p className="text-sm text-muted-foreground">Administrer forslag og idéer</p>
             </div>
           </div>
           <Button variant="outline" onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
+            Tilbage til oversigten
           </Button>
         </div>
 
-        {/* Luxkids Info Banner */}
-        <Card className="bg-gradient-to-r from-primary/5 to-primary-light border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-primary mb-1">LUXKIDS Suggestion Management</h3>
-                <p className="text-sm text-muted-foreground">
-                  Manage user suggestions for our multibrand children's clothing platform. 
-                  Review ideas from customers across all our brands: mikk-line, THE NEW, soft gallery, and more.
-                </p>
-              </div>
-              <a 
-                href="https://luxkids.dk" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hidden md:block"
-              >
-                <Button variant="outline" size="sm">
-                  Visit Website
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </Button>
-              </a>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -243,7 +201,7 @@ const Admin = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-sm text-muted-foreground">I alt</p>
                   <p className="text-2xl font-bold">{suggestions.length}</p>
                 </div>
                 <div className="p-2 bg-primary/10 rounded-full">
@@ -256,7 +214,7 @@ const Admin = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-sm text-muted-foreground">Afventer</p>
                   <p className="text-2xl font-bold text-yellow-600">{pendingSuggestions.length}</p>
                 </div>
                 <div className="p-2 bg-yellow-100 rounded-full">
@@ -269,7 +227,7 @@ const Admin = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Approved</p>
+                  <p className="text-sm text-muted-foreground">Godkendt</p>
                   <p className="text-2xl font-bold text-green-600">
                     {suggestions.filter(s => s.status === 'approved').length}
                   </p>
@@ -284,7 +242,7 @@ const Admin = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Rejected</p>
+                  <p className="text-sm text-muted-foreground">Afvist</p>
                   <p className="text-2xl font-bold text-red-600">
                     {suggestions.filter(s => s.status === 'rejected').length}
                   </p>
@@ -302,14 +260,14 @@ const Admin = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-yellow-600" />
-              Pending Review ({pendingSuggestions.length})
+              Afventer gennemgang ({pendingSuggestions.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {pendingSuggestions.length === 0 ? (
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No pending suggestions</p>
+                <p className="text-muted-foreground">Ingen afventende forslag</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -319,7 +277,7 @@ const Admin = () => {
                       <div className="flex-1">
                         <h3 className="font-semibold">{suggestion.title}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          by {suggestion.profiles?.full_name || 'Unknown User'}
+                          af {suggestion.profiles?.full_name || 'Ukendt bruger'}
                         </p>
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                           {suggestion.description}
@@ -352,7 +310,7 @@ const Admin = () => {
                               <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
                                 <span className="text-white text-xs font-bold">LK</span>
                               </div>
-                              Review Suggestion: {suggestion.title}
+                              Gennemse forslag: {suggestion.title}
                             </DialogTitle>
                           </DialogHeader>
                           
@@ -360,7 +318,7 @@ const Admin = () => {
                             {/* Suggestion Details */}
                             <div className="space-y-4">
                               <div>
-                                <h4 className="font-semibold mb-2">Original Suggestion</h4>
+                                <h4 className="font-semibold mb-2">Oprindeligt forslag</h4>
                                 <div className="p-3 bg-muted rounded-lg">
                                   <p className="text-sm">{suggestion.description}</p>
                                 </div>
@@ -368,10 +326,10 @@ const Admin = () => {
                               
                               {/* AI Conversation */}
                               <div>
-                                <h4 className="font-semibold mb-2">AI Collaboration</h4>
+                                <h4 className="font-semibold mb-2">AI-samarbejde</h4>
                                 <ScrollArea className="h-64 border rounded-lg p-3">
                                   {suggestion.ai_conversation.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">No AI conversation yet</p>
+                                    <p className="text-sm text-muted-foreground">Ingen AI-samtale endnu</p>
                                   ) : (
                                     <div className="space-y-3">
                                       {suggestion.ai_conversation.map((message, index) => (
@@ -385,7 +343,7 @@ const Admin = () => {
                                           </div>
                                           <div className="flex-1">
                                             <p className="text-xs text-muted-foreground mb-1">
-                                              {message.role === 'user' ? 'User' : 'AI Assistant'}
+                                              {message.role === 'user' ? 'Bruger' : 'AI-assistent'}
                                             </p>
                                             <p className="text-sm">{message.content}</p>
                                           </div>
@@ -400,9 +358,9 @@ const Admin = () => {
                             {/* Admin Actions */}
                             <div className="space-y-4">
                               <div>
-                                <label className="text-sm font-medium mb-2 block">LUXKIDS Admin Notes</label>
+                                <label className="text-sm font-medium mb-2 block">Admin-noter</label>
                                 <Textarea
-                                  placeholder="Add feedback or notes for the user..."
+                                  placeholder="Tilføj feedback eller noter til brugeren..."
                                   value={adminNotes}
                                   onChange={(e) => setAdminNotes(e.target.value)}
                                   rows={6}
@@ -416,7 +374,7 @@ const Admin = () => {
                                   className="w-full bg-green-600 hover:bg-green-700"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
-                                  Approve Suggestion
+                                  Godkend forslag
                                 </Button>
                                 <Button
                                   onClick={() => updateSuggestionStatus(suggestion.id, 'rejected', adminNotes)}
@@ -425,7 +383,7 @@ const Admin = () => {
                                   className="w-full"
                                 >
                                   <XCircle className="w-4 h-4 mr-2" />
-                                  Reject Suggestion
+                                  Afvis forslag
                                 </Button>
                               </div>
                             </div>
@@ -447,11 +405,11 @@ const Admin = () => {
         {/* Reviewed Suggestions */}
         <Card className="backdrop-blur-sm bg-card/95">
           <CardHeader>
-            <CardTitle>Recently Reviewed</CardTitle>
+            <CardTitle>Senest gennemgået</CardTitle>
           </CardHeader>
           <CardContent>
             {reviewedSuggestions.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">No reviewed suggestions yet</p>
+              <p className="text-center text-muted-foreground py-4">Ingen gennemgåede forslag endnu</p>
             ) : (
               <div className="space-y-3">
                 {reviewedSuggestions.slice(0, 5).map((suggestion) => (
@@ -459,7 +417,7 @@ const Admin = () => {
                     <div>
                       <p className="font-medium">{suggestion.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        by {suggestion.profiles?.full_name || 'Unknown User'}
+                        af {suggestion.profiles?.full_name || 'Ukendt bruger'}
                       </p>
                     </div>
                     <Badge className={getStatusColor(suggestion.status)} variant="outline">
@@ -473,15 +431,8 @@ const Admin = () => {
           </CardContent>
         </Card>
 
-        {/* Luxkids Footer */}
         <div className="text-center py-6 border-t">
-          <p className="text-sm text-muted-foreground">
-            © 2025 LUXKIDS ApS • 
-            <a href="https://luxkids.dk" target="_blank" rel="noopener noreferrer" className="hover:text-primary ml-1">
-              luxkids.dk
-            </a>
-            • Børnetøj & Suggestion Management Platform
-          </p>
+          <p className="text-sm text-muted-foreground">© 2025 Internt værktøj</p>
         </div>
       </div>
     </div>

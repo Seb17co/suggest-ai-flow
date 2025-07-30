@@ -31,26 +31,26 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
           <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
             <span className="text-white text-xs font-bold">LK</span>
           </div>
-          Share Your LUXKIDS Idea
+          Del din idé
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Suggestion Title</Label>
+            <Label htmlFor="title">Titel</Label>
             <Input
               id="title"
-              placeholder="E.g., New børnetøj design idea, product improvement..."
+              placeholder="F.eks. nyt børnetøjsdesign eller produktforbedring"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Beskrivelse</Label>
             <Textarea
               id="description"
-              placeholder="Describe your idea for LUXKIDS børnetøj brands (mikk-line, THE NEW, soft gallery, etc.). Our AI will help you refine it!"
+              placeholder="Beskriv din idé. AI hjælper med at forbedre den."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -62,11 +62,11 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
             className="w-full" 
             disabled={loading || !title.trim() || !description.trim()}
           >
-            {loading ? 'Creating suggestion...' : 'Start AI Collaboration'}
+            {loading ? 'Opretter forslag...' : 'Start AI-samarbejde'}
             <Send className="ml-2 w-4 h-4" />
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Your ideas help improve børnetøj across all LUXKIDS brands
+            Dine idéer hjælper os med at forbedre børnetøj
           </p>
         </form>
       </CardContent>

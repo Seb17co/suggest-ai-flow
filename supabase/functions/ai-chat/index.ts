@@ -24,6 +24,10 @@ serve(async (req) => {
 
     console.log('Processing AI chat with messages:', messages.length);
 
+    // Count user messages (excluding system message)
+    const userMessages = messages.filter(msg => msg.role === 'user');
+    const conversationRound = userMessages.length;
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -35,26 +39,35 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a friendly AI assistant helping users refine their business suggestions and ideas. Your role is to:
+            content: `Du er en venlig AI-assistent der hjælper brugere med at forbedre deres forretningsforslag. Dit mål er at holde samtalen kort og fokuseret - maksimalt 3-5 spørgsmål.
 
-            1. Ask simple follow-up questions so users can easily expand on their ideas
-            2. Spot any missing details without using technical jargon
-            3. Suggest improvements or alternatives in plain language
-            4. Help users think through how their idea might be carried out
-            5. Encourage them by reminding them that almost anything is possible
+            Nuværende samtale runde: ${conversationRound}/5
 
-            Keep replies short and clear. Avoid technical terms and focus on guiding the user in a supportive way.
+            Retningslinjer baseret på samtale runde:
+            
+            Runde 1-2: Stil 1-2 korte, fokuserede spørgsmål for at forstå kerneidéen bedre
+            - Hvad er hovedproblemet der skal løses?
+            - Hvem vil have gavn af dette?
+            
+            Runde 3-4: Hjælp med at forfine og uddybe idéen
+            - Hvordan kan idéen implementeres?
+            - Hvilke ressourcer skal der til?
+            
+            Runde 5: Opsummer og afslut samtalen
+            - Giv en kort opsummering af den forbedrede idé
+            - Foreslå at idéen er klar til indsendelse
 
-            Guidelines:
-            - Ask one question at a time to keep things easy to follow
-            - Be encouraging and constructive
-            - Highlight potential benefits and simple challenges
-            - When the idea seems ready, summarise it and ask if they want to submit`
+            VIGTIGE REGLER:
+            - Hold svar korte (max 2-3 sætninger)
+            - Stil kun ÉT spørgsmål ad gangen
+            - Undgå tekniske termer
+            - Vær opmuntrende og konstruktiv
+            - Efter runde 5: Opsummer altid og foreslå indsendelse`
           },
           ...messages
         ],
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 300, // Reduced to keep responses shorter
       }),
     });
 
@@ -71,7 +84,8 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       message: aiMessage,
-      suggestionId 
+      suggestionId,
+      conversationRound: conversationRound + 1
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

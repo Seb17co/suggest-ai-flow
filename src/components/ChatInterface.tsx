@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Send, Bot, User, CheckCircle, ArrowLeft, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -35,6 +36,11 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [conversationRound, setConversationRound] = useState(() => {
+    // Count existing user messages to determine current round
+    const userMessages = suggestion.ai_conversation.filter(msg => msg.role === 'user');
+    return userMessages.length;
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +50,7 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
   }, [messages]);
 
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || conversationRound >= 5) return;
 
     const userMessage = { role: 'user' as const, content: input.trim() };
     const newMessages = [...messages, userMessage];
@@ -65,6 +71,7 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       const aiMessage = { role: 'assistant' as const, content: data.message };
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
+      setConversationRound(data.conversationRound || conversationRound + 1);
 
       // Update the suggestion in the database
       const conversationData = updatedMessages.slice(1).map(msg => ({
@@ -76,6 +83,13 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
         .from('suggestions')
         .update({ ai_conversation: conversationData as any })
         .eq('id', suggestion.id);
+
+      // Auto-suggest completion after 5 rounds
+      if (data.conversationRound >= 5) {
+        setTimeout(() => {
+          toast.info('Samtalen er nu færdig! Du kan indsende din forbedrede idé.');
+        }, 1000);
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -140,6 +154,9 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
     );
   }
 
+  const progressPercentage = Math.min((conversationRound / 5) * 100, 100);
+  const isConversationComplete = conversationRound >= 5;
+
   return (
     <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
       <CardHeader>
@@ -153,9 +170,29 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
               AI-samarbejde
             </CardTitle>
           </div>
-          <Badge variant="secondary">Forbedrer idé</Badge>
+          <div className="flex items-center gap-2">
+            {!isConversationComplete && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {conversationRound}/5 spørgsmål
+              </Badge>
+            )}
+            {isConversationComplete && (
+              <Badge variant="default">Klar til indsendelse</Badge>
+            )}
+          </div>
+        </div>
+        
+        {/* Progress indicator */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Samtale fremgang</span>
+            <span>{Math.round(progressPercentage)}%</span>
+          </div>
+          <Progress value={progressPercentage} className="h-2" />
         </div>
       </CardHeader>
+      
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground bg-primary-light p-3 rounded-lg">
           <strong>Arbejder med:</strong> {suggestion.title} ({suggestion.department})
@@ -220,17 +257,28 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
           </div>
         </ScrollArea>
 
-        <div className="flex gap-2">
-          <Input
-            placeholder="Fortsæt samtalen..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={loading}
-          />
-          <Button onClick={sendMessage} disabled={loading || !input.trim()}>
-            <Send className="w-4 h-4" />
-          </Button>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Input
+              placeholder={isConversationComplete ? "Samtale afsluttet - indsend idé" : "Fortsæt samtalen..."}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={loading || isConversationComplete}
+            />
+            <Button 
+              onClick={sendMessage} 
+              disabled={loading || !input.trim() || isConversationComplete}
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          {isConversationComplete && (
+            <div className="text-xs text-muted-foreground text-center">
+              Samtalen er afsluttet efter 5 spørgsmål. Din idé er nu klar til indsendelse.
+            </div>
+          )}
         </div>
 
         <div className="pt-2 border-t">
@@ -238,14 +286,19 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
             onClick={markAsComplete} 
             className="w-full" 
             variant="default"
-            disabled={loading || messages.length < 3}
+            disabled={loading || conversationRound < 2}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             Idéen er færdig - indsend til vurdering
           </Button>
-          {messages.length < 3 && (
+          {conversationRound < 2 && (
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              Fortsæt samtalen for at forbedre idéen før indsendelse
+              Fortsæt samtalen for at forbedre idéen før indsendelse (mindst 2 spørgsmål)
+            </p>
+          )}
+          {conversationRound >= 2 && conversationRound < 5 && (
+            <p className="text-xs text-muted-foreground mt-1 text-center">
+              Du kan indsende nu eller fortsætte samtalen for yderligere forbedringer
             </p>
           )}
         </div>

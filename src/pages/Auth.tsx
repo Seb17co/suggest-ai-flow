@@ -67,8 +67,8 @@ const Auth = () => {
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Log ind</TabsTrigger>
-                <TabsTrigger value="signup">Opret konto</TabsTrigger>
+                <TabsTrigger value="signin" data-testid="signin-tab">Log ind</TabsTrigger>
+                <TabsTrigger value="signup" data-testid="signup-tab">Opret konto</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">

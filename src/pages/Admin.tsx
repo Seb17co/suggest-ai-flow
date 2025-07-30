@@ -7,16 +7,18 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink, Archive } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink, Archive, Download, FileText, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 
 interface Suggestion {
   id: string;
   title: string;
   description: string;
   department: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'more_info_needed';
   ai_conversation: Array<{ role: 'user' | 'assistant'; content: string }>;
   admin_notes?: string;
   prd?: string | null;
@@ -35,11 +37,13 @@ const Admin = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     checkAdminAccess();
@@ -100,7 +104,7 @@ const Admin = () => {
       // Combine the data
       const typedSuggestions = (suggestionsData || []).map(item => ({
         ...item,
-        status: item.status as 'pending' | 'approved' | 'rejected',
+        status: item.status as 'pending' | 'approved' | 'rejected' | 'more_info_needed',
         ai_conversation: (item.ai_conversation as any) || [],
         profiles: profilesMap.get(item.user_id) || null,
         department: item.department,
@@ -114,9 +118,21 @@ const Admin = () => {
     }
   };
 
+  useEffect(() => {
+    filterSuggestions();
+  }, [suggestions, statusFilter]);
+
+  const filterSuggestions = () => {
+    if (statusFilter === 'all') {
+      setFilteredSuggestions(suggestions);
+    } else {
+      setFilteredSuggestions(suggestions.filter(s => s.status === statusFilter));
+    }
+  };
+
   const updateSuggestionStatus = async (
     suggestion: Suggestion,
-    status: 'approved' | 'rejected',
+    status: 'approved' | 'rejected' | 'more_info_needed',
     notes: string
   ) => {
     setActionLoading(true);
@@ -146,7 +162,9 @@ const Admin = () => {
 
           await supabase
             .from('suggestions')
-            .update({ prd: prdData.prd as string })
+            .update({ 
+              prd: prdData.prd as string
+            })
             .eq('id', suggestion.id);
         } catch (prdErr) {
           console.error('Error generating PRD:', prdErr);
@@ -154,7 +172,8 @@ const Admin = () => {
         }
       }
 
-      toast.success(`Suggestion ${status} successfully`);
+      const statusText = status === 'more_info_needed' ? 'marked as needing more information' : status;
+      toast.success(`Suggestion ${statusText} successfully`);
       await fetchSuggestions();
       setSelectedSuggestion(null);
       setAdminNotes('');
@@ -188,12 +207,70 @@ const Admin = () => {
     }
   };
 
+  const downloadPRDAsMarkdown = (suggestion: Suggestion) => {
+    if (!suggestion.prd) {
+      toast.error('No PRD available for this suggestion');
+      return;
+    }
+
+    const markdownContent = `# PRD: ${suggestion.title}\n\n${suggestion.prd}`;
+    const blob = new Blob([markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PRD-${suggestion.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('PRD downloaded as Markdown');
+  };
+
+  const downloadPRDAsPDF = (suggestion: Suggestion) => {
+    if (!suggestion.prd) {
+      toast.error('No PRD available for this suggestion');
+      return;
+    }
+
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxLineWidth = pageWidth - 2 * margin;
+    
+    // Add title
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`PRD: ${suggestion.title}`, margin, 30);
+    
+    // Add content
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    const lines = pdf.splitTextToSize(suggestion.prd, maxLineWidth);
+    
+    let yPosition = 50;
+    const lineHeight = 7;
+    
+    lines.forEach((line: string) => {
+      if (yPosition > pdf.internal.pageSize.getHeight() - margin) {
+        pdf.addPage();
+        yPosition = margin;
+      }
+      pdf.text(line, margin, yPosition);
+      yPosition += lineHeight;
+    });
+    
+    pdf.save(`PRD-${suggestion.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+    toast.success('PRD downloaded as PDF');
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'rejected':
         return <XCircle className="w-4 h-4 text-red-600" />;
+      case 'more_info_needed':
+        return <Info className="w-4 h-4 text-blue-600" />;
       default:
         return <Clock className="w-4 h-4 text-yellow-600" />;
     }
@@ -205,8 +282,25 @@ const Admin = () => {
         return 'bg-green-100 text-green-800 border-green-200';
       case 'rejected':
         return 'bg-red-100 text-red-800 border-red-200';
+      case 'more_info_needed':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       default:
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    }
+  };
+
+  const getStatusDisplayName = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Afventer';
+      case 'approved':
+        return 'Godkendt';
+      case 'rejected':
+        return 'Afvist';
+      case 'more_info_needed':
+        return 'Behov for mere info';
+      default:
+        return status;
     }
   };
 
@@ -221,8 +315,8 @@ const Admin = () => {
     );
   }
 
-  const pendingSuggestions = suggestions.filter(s => s.status === 'pending');
-  const reviewedSuggestions = suggestions.filter(s => s.status !== 'pending');
+  const pendingSuggestions = filteredSuggestions.filter(s => s.status === 'pending');
+  const reviewedSuggestions = filteredSuggestions.filter(s => s.status !== 'pending');
 
   return (
     <div className="min-h-screen p-4" style={{ background: 'var(--gradient-subtle)' }}>
@@ -248,9 +342,32 @@ const Admin = () => {
           </Button>
         </div>
 
+        {/* Filter Controls */}
+        <Card className="backdrop-blur-sm bg-card/95">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium">Filtrer efter status:</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Vælg status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle forslag</SelectItem>
+                  <SelectItem value="pending">Afventer</SelectItem>
+                  <SelectItem value="approved">Godkendt</SelectItem>
+                  <SelectItem value="rejected">Afvist</SelectItem>
+                  <SelectItem value="more_info_needed">Behov for mere info</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="text-sm text-muted-foreground">
+                Viser {filteredSuggestions.length} af {suggestions.length} forslag
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -269,7 +386,7 @@ const Admin = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Afventer</p>
-                  <p className="text-2xl font-bold text-yellow-600">{pendingSuggestions.length}</p>
+                  <p className="text-2xl font-bold text-yellow-600">{suggestions.filter(s => s.status === 'pending').length}</p>
                 </div>
                 <div className="p-2 bg-yellow-100 rounded-full">
                   <Clock className="w-5 h-5 text-yellow-600" />
@@ -307,6 +424,21 @@ const Admin = () => {
               </div>
             </CardContent>
           </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Mere info</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {suggestions.filter(s => s.status === 'more_info_needed').length}
+                  </p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Info className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Pending Suggestions */}
@@ -321,7 +453,9 @@ const Admin = () => {
             {pendingSuggestions.length === 0 ? (
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Ingen afventende forslag</p>
+                <p className="text-muted-foreground">
+                  {statusFilter === 'pending' ? 'Ingen afventende forslag' : 'Ingen forslag matcher filteret'}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -342,7 +476,7 @@ const Admin = () => {
                       </div>
                       <Badge className={getStatusColor(suggestion.status)} variant="outline">
                         {getStatusIcon(suggestion.status)}
-                        <span className="ml-1">{suggestion.status}</span>
+                        <span className="ml-1">{getStatusDisplayName(suggestion.status)}</span>
                       </Badge>
                     </div>
                     
@@ -415,7 +549,27 @@ const Admin = () => {
                               </div>
                               {suggestion.prd && (
                                 <div>
-                                  <h4 className="font-semibold mb-2">PRD</h4>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-semibold">PRD</h4>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => downloadPRDAsMarkdown(suggestion)}
+                                      >
+                                        <FileText className="w-4 h-4 mr-1" />
+                                        MD
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => downloadPRDAsPDF(suggestion)}
+                                      >
+                                        <Download className="w-4 h-4 mr-1" />
+                                        PDF
+                                      </Button>
+                                    </div>
+                                  </div>
                                   <ScrollArea className="h-64 border rounded-lg p-3">
                                     <pre className="text-sm whitespace-pre-wrap">
                                       {suggestion.prd}
@@ -445,6 +599,15 @@ const Admin = () => {
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2" />
                                   Godkend forslag
+                                </Button>
+                                <Button
+                                  onClick={() => updateSuggestionStatus(suggestion, 'more_info_needed', adminNotes)}
+                                  disabled={actionLoading}
+                                  variant="outline"
+                                  className="w-full border-blue-200 text-blue-700 hover:bg-blue-50"
+                                >
+                                  <Info className="w-4 h-4 mr-2" />
+                                  Behov for mere info
                                 </Button>
                                 <Button
                                   onClick={() => updateSuggestionStatus(suggestion, 'rejected', adminNotes)}
@@ -488,24 +651,52 @@ const Admin = () => {
           </CardHeader>
           <CardContent>
             {reviewedSuggestions.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">Ingen gennemgåede forslag endnu</p>
+              <p className="text-center text-muted-foreground py-4">
+                {statusFilter === 'all' ? 'Ingen gennemgåede forslag endnu' : 'Ingen forslag matcher filteret'}
+              </p>
             ) : (
               <div className="space-y-3">
                 {reviewedSuggestions.slice(0, 5).map((suggestion) => (
                   <div key={suggestion.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{suggestion.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      af {suggestion.profiles?.full_name || 'Ukendt bruger'}
-                    </p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      Afdeling: {suggestion.department}
-                    </p>
-                  </div>
-                    <Badge className={getStatusColor(suggestion.status)} variant="outline">
-                      {getStatusIcon(suggestion.status)}
-                      <span className="ml-1">{suggestion.status}</span>
-                    </Badge>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{suggestion.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            af {suggestion.profiles?.full_name || 'Ukendt bruger'}
+                          </p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            Afdeling: {suggestion.department}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {suggestion.prd && suggestion.status === 'approved' && (
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => downloadPRDAsMarkdown(suggestion)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <FileText className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => downloadPRDAsPDF(suggestion)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Download className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
+                          <Badge className={getStatusColor(suggestion.status)} variant="outline">
+                            {getStatusIcon(suggestion.status)}
+                            <span className="ml-1">{getStatusDisplayName(suggestion.status)}</span>
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

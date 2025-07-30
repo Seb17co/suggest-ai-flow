@@ -1,4 +1,4 @@
-suba-- First, ensure we have a user with the correct email
+-- First, ensure we have a user with the correct email
 DO $$
 DECLARE
     user_uuid uuid;

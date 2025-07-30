@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink, Archive } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -21,6 +21,7 @@ interface Suggestion {
   admin_notes?: string;
   prd?: string | null;
   created_at: string;
+  archived?: boolean;
   profiles: {
     full_name: string;
   } | null;
@@ -79,6 +80,7 @@ const Admin = () => {
       const { data: suggestionsData, error: suggestionsError } = await supabase
         .from('suggestions')
         .select('*')
+        .eq('archived', false)
         .order('created_at', { ascending: false });
 
       if (suggestionsError) throw suggestionsError;
@@ -101,7 +103,8 @@ const Admin = () => {
         status: item.status as 'pending' | 'approved' | 'rejected',
         ai_conversation: (item.ai_conversation as any) || [],
         profiles: profilesMap.get(item.user_id) || null,
-        department: item.department
+        department: item.department,
+        archived: item.archived
       }));
       
       setSuggestions(typedSuggestions);
@@ -158,6 +161,28 @@ const Admin = () => {
     } catch (error) {
       console.error('Error updating suggestion:', error);
       toast.error('Failed to update suggestion');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const archiveSuggestion = async (suggestion: Suggestion) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('suggestions')
+        .update({ archived: true, admin_id: user?.id })
+        .eq('id', suggestion.id);
+
+      if (error) throw error;
+
+      toast.success('Suggestion archived');
+      await fetchSuggestions();
+      setSelectedSuggestion(null);
+      setAdminNotes('');
+    } catch (error) {
+      console.error('Error archiving suggestion:', error);
+      toast.error('Failed to archive suggestion');
     } finally {
       setActionLoading(false);
     }
@@ -429,6 +454,15 @@ const Admin = () => {
                                 >
                                   <XCircle className="w-4 h-4 mr-2" />
                                   Afvis forslag
+                                </Button>
+                                <Button
+                                  onClick={() => archiveSuggestion(suggestion)}
+                                  disabled={actionLoading}
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  <Archive className="w-4 h-4 mr-2" />
+                                  Arkiver forslag
                                 </Button>
                               </div>
                             </div>

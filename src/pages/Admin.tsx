@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink, Archive, Download, FileText, Info } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, XCircle, Eye, User, Bot, Shield, ExternalLink, Archive, Download, FileText, Info, Edit, Save, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -44,6 +46,12 @@ const Admin = () => {
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    department: ''
+  });
 
   useEffect(() => {
     checkAdminAccess();
@@ -205,6 +213,53 @@ const Admin = () => {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const editSuggestion = async (suggestion: Suggestion) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('suggestions')
+        .update({
+          title: editForm.title.trim(),
+          description: editForm.description.trim(),
+          department: editForm.department,
+          admin_id: user?.id
+        })
+        .eq('id', suggestion.id);
+
+      if (error) throw error;
+
+      toast.success('Suggestion updated successfully');
+      await fetchSuggestions();
+      setIsEditing(false);
+      // Update the selected suggestion with new data
+      setSelectedSuggestion({
+        ...suggestion,
+        title: editForm.title.trim(),
+        description: editForm.description.trim(),
+        department: editForm.department
+      });
+    } catch (error) {
+      console.error('Error updating suggestion:', error);
+      toast.error('Failed to update suggestion');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const startEditing = (suggestion: Suggestion) => {
+    setEditForm({
+      title: suggestion.title,
+      description: suggestion.description,
+      department: suggestion.department
+    });
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditForm({ title: '', description: '', department: '' });
   };
 
   const downloadPRDAsMarkdown = (suggestion: Suggestion) => {
@@ -489,6 +544,8 @@ const Admin = () => {
                             onClick={() => {
                               setSelectedSuggestion(suggestion);
                               setAdminNotes(suggestion.admin_notes || '');
+                              setIsEditing(false);
+                              setEditForm({ title: '', description: '', department: '' });
                             }}
                           >
                             <Eye className="w-4 h-4 mr-1" />
@@ -497,11 +554,45 @@ const Admin = () => {
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl max-h-[90vh]">
                           <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                              <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">LK</span>
+                            <DialogTitle className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                                  <span className="text-white text-xs font-bold">LK</span>
+                                </div>
+                                Gennemse forslag: {isEditing ? editForm.title : suggestion.title}
                               </div>
-                              Gennemse forslag: {suggestion.title}
+                              {!isEditing ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => startEditing(suggestion)}
+                                  disabled={actionLoading}
+                                >
+                                  <Edit className="w-4 h-4 mr-1" />
+                                  Rediger
+                                </Button>
+                              ) : (
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => editSuggestion(suggestion)}
+                                    disabled={actionLoading || !editForm.title.trim() || !editForm.description.trim()}
+                                  >
+                                    <Save className="w-4 h-4 mr-1" />
+                                    Gem
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={cancelEditing}
+                                    disabled={actionLoading}
+                                  >
+                                    <X className="w-4 h-4 mr-1" />
+                                    Annuller
+                                  </Button>
+                                </div>
+                              )}
                             </DialogTitle>
                           </DialogHeader>
                           
@@ -509,13 +600,62 @@ const Admin = () => {
                             {/* Suggestion Details */}
                             <div className="space-y-4">
                               <div>
-                                <h4 className="font-semibold mb-2">Oprindeligt forslag</h4>
-                                <div className="p-3 bg-muted rounded-lg space-y-2">
-                                  <p className="text-sm">{suggestion.description}</p>
-                                  <p className="text-xs text-muted-foreground capitalize">
-                                    Afdeling: {suggestion.department}
-                                  </p>
-                                </div>
+                                <h4 className="font-semibold mb-2">
+                                  {isEditing ? 'Rediger forslag' : 'Oprindeligt forslag'}
+                                </h4>
+                                {isEditing ? (
+                                  <div className="space-y-3">
+                                    <div>
+                                      <Label htmlFor="edit-title">Titel</Label>
+                                      <Input
+                                        id="edit-title"
+                                        value={editForm.title}
+                                        onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                                        placeholder="Titel på forslaget"
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="edit-description">Beskrivelse</Label>
+                                      <Textarea
+                                        id="edit-description"
+                                        value={editForm.description}
+                                        onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                                        placeholder="Beskrivelse af forslaget"
+                                        rows={4}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="edit-department">Afdeling</Label>
+                                      <Select
+                                        value={editForm.department}
+                                        onValueChange={(value) => setEditForm({...editForm, department: value})}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Vælg afdeling" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="it">IT</SelectItem>
+                                          <SelectItem value="hr">HR</SelectItem>
+                                          <SelectItem value="marketing">Marketing</SelectItem>
+                                          <SelectItem value="sales">Salg</SelectItem>
+                                          <SelectItem value="finance">Økonomi</SelectItem>
+                                          <SelectItem value="operations">Drift</SelectItem>
+                                          <SelectItem value="customer_service">Kundeservice</SelectItem>
+                                          <SelectItem value="product">Produkt</SelectItem>
+                                          <SelectItem value="other">Andet</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="p-3 bg-muted rounded-lg space-y-2">
+                                    <h5 className="font-medium">{suggestion.title}</h5>
+                                    <p className="text-sm">{suggestion.description}</p>
+                                    <p className="text-xs text-muted-foreground capitalize">
+                                      Afdeling: {suggestion.department}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                               
                               {/* AI Conversation */}

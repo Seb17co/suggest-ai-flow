@@ -43,6 +43,9 @@ const Index = () => {
             Tilmeld dig
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
+          <Button size="lg" variant="outline" onClick={() => navigate('/auth')}>
+            Log ind
+          </Button>
         </div>
 
         <div className="mt-12 pt-8 border-t border-border/20">

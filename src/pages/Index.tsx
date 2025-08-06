@@ -30,12 +30,8 @@ const Index = () => {
 
         <h2 className="text-3xl font-semibold mb-2 text-foreground">Velkommen</h2>
 
-        <p className="text-xl text-muted-foreground mb-4">
-          Del dine idéer til børnetøj og lad AI hjælpe med at gøre dem til konkrete forslag.
-        </p>
-
-        <p className="text-lg text-muted-foreground mb-8">
-          Hjælp os med at forbedre børnetøj på tværs af vores mærker.
+        <p className="text-xl text-muted-foreground mb-8">
+          Del dine ideer til hvordan AI kan hjælpe Luxkids
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

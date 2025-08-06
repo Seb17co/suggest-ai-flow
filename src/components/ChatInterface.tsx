@@ -93,9 +93,13 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
           : messageContent
       };
 
+      // Send only the actual conversation messages (excluding the initial local assistant message)
+      // The AI function will add its own system message with proper context from the database
+      const conversationMessages = messages.slice(1); // Remove the initial local assistant message
+      
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
-          messages: [...messages, messageForAI],
+          messages: [...conversationMessages, messageForAI],
           suggestionId: suggestion.id
         }
       });

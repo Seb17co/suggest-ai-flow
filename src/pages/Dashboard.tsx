@@ -61,7 +61,7 @@ const Dashboard = () => {
         .from('suggestions')
         .select('*')
         .eq('user_id', user.id)
-        .eq('archived', false)
+        
         .order('created_at', { ascending: false });
 
       if (suggestionsError) throw suggestionsError;

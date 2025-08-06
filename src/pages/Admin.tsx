@@ -92,7 +92,6 @@ const Admin = () => {
       const { data: suggestionsData, error: suggestionsError } = await supabase
         .from('suggestions')
         .select('*')
-        .eq('archived', false)
         .order('created_at', { ascending: false });
 
       if (suggestionsError) throw suggestionsError;
@@ -116,7 +115,7 @@ const Admin = () => {
         ai_conversation: (item.ai_conversation as any) || [],
         profiles: profilesMap.get(item.user_id) || null,
         department: item.department,
-        archived: item.archived
+        archived: false
       }));
       
       setSuggestions(typedSuggestions);

@@ -34,9 +34,7 @@ interface ChatInterfaceProps {
 
 const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: `Hej! Jeg kan se, at du gerne vil arbejde med: "${suggestion.title}". ${suggestion.description}
-
-Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade sig gøre. Hvilket problem vil du gerne løse?` },
+    // Remove the hardcoded initial message - AI will provide proper greeting with context
     ...suggestion.ai_conversation
   ]);
   const [input, setInput] = useState('');
@@ -93,9 +91,9 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
           : messageContent
       };
 
-      // Send only the actual conversation messages (excluding the initial local assistant message)
+      // Send the actual conversation messages to the AI function
       // The AI function will add its own system message with proper context from the database
-      const conversationMessages = messages.slice(1); // Remove the initial local assistant message
+      const conversationMessages = messages.filter(msg => msg.role === 'user' || msg.role === 'assistant');
       
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
@@ -112,7 +110,7 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       setConversationRound(data.conversationRound || conversationRound + 1);
 
       // Update the suggestion in the database
-      const conversationData = updatedMessages.slice(1).map(msg => ({
+      const conversationData = updatedMessages.map(msg => ({
         role: msg.role,
         content: msg.content,
         attachments: msg.attachments
@@ -150,7 +148,7 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       setLoading(true);
       
       // Update suggestion status to indicate it's ready for admin review
-      const conversationData = messages.slice(1).map(msg => ({
+      const conversationData = messages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
@@ -216,6 +214,41 @@ Lad os sammen udvikle idéen uden svære fagudtryk. Husk, næsten alt kan lade s
       </div>
     );
   };
+
+  // Add effect to get initial AI greeting if no conversation exists
+  useEffect(() => {
+    if (suggestion.ai_conversation.length === 0) {
+      // Send initial empty message to get AI's personalized greeting
+      const getInitialGreeting = async () => {
+        setLoading(true);
+        try {
+          const { data, error } = await supabase.functions.invoke('ai-chat', {
+            body: {
+              messages: [], // Empty messages array for initial greeting
+              suggestionId: suggestion.id
+            }
+          });
+
+          if (error) throw error;
+
+          const aiMessage: Message = { role: 'assistant' as const, content: data.message };
+          setMessages([aiMessage]);
+          setConversationRound(0);
+        } catch (error) {
+          console.error('Error getting initial greeting:', error);
+          // Fallback to a generic message if AI fails
+          setMessages([{
+            role: 'assistant',
+            content: `Hej! Lad os arbejde sammen med dit forslag. Hvad vil du gerne forbedre eller uddybe?`
+          }]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      getInitialGreeting();
+    }
+  }, [suggestion.id, suggestion.ai_conversation.length]);
 
   if (isComplete) {
     return (

@@ -1,7 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,6 +27,28 @@ serve(async (req) => {
 
     console.log('Processing AI chat with messages:', messages.length);
 
+    // Get suggestion details for context
+    let suggestionContext = '';
+    if (suggestionId) {
+      const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+      const { data: suggestion } = await supabase
+        .from('suggestions')
+        .select('title, description, department')
+        .eq('id', suggestionId)
+        .single();
+      
+      if (suggestion) {
+        suggestionContext = `
+
+ORIGINAL BRUGER FORSLAG:
+Titel: ${suggestion.title}
+Beskrivelse: ${suggestion.description}  
+Afdeling: ${suggestion.department}
+
+Husk at referere til dette originale forslag i din samtale med brugeren.`;
+      }
+    }
+
     // Count user messages (excluding system message)
     const userMessages = messages.filter(msg => msg.role === 'user');
     const conversationRound = userMessages.length;
@@ -42,6 +67,7 @@ serve(async (req) => {
             content: `Du er en venlig AI-assistent der hjælper brugere med at forbedre deres forretningsforslag. Dit mål er at holde samtalen kort og fokuseret - maksimalt 3-5 spørgsmål.
 
             Nuværende samtale runde: ${conversationRound}/5
+${suggestionContext}
 
             Retningslinjer baseret på samtale runde:
             

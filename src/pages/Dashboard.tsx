@@ -164,13 +164,13 @@ const Dashboard = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-foreground">Forslagsplatform</h1>
+            <h1 className="text-2xl font-bold text-foreground">AI Forslagsplatform</h1>
             <div className="hidden md:block w-px h-12 bg-border"></div>
             <div>
               <h2 className="text-xl font-semibold text-foreground">
                 Velkommen tilbage, {profile?.full_name || user?.email}!
               </h2>
-              <p className="text-sm text-muted-foreground">Klar til at dele dine næste store idé? 💡</p>
+              <p className="text-sm text-muted-foreground">Klar til at dele din næste store AI-idé? 🤖</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -209,7 +209,7 @@ const Dashboard = () => {
                   <div className="text-center py-8">
                     <Lightbulb className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
-                      Ingen forslag endnu. Del din første idé for at komme i gang!
+                      Ingen AI-forslag endnu. Del din første idé for at komme i gang!
                     </p>
                   </div>
                 ) : (

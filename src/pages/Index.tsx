@@ -28,11 +28,11 @@ const Index = () => {
       <div className="max-w-4xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-12 pt-8">
-          <h1 className="text-5xl font-bold mb-4 text-foreground">LUXKIDS Idéplatform</h1>
-          <h2 className="text-3xl font-semibold mb-4 text-foreground">Dine idéer skaber fremtiden</h2>
+          <h1 className="text-5xl font-bold mb-4 text-foreground">LUXKIDS AI Idéplatform</h1>
+          <h2 className="text-3xl font-semibold mb-4 text-foreground">AI gør dit arbejde lettere</h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Del dine idéer til produktforbedringer, nye designs og smarte løsninger. 
-            Vores AI hjælper dig med at udvikle og forfine dine forslag.
+            Har du idéer til hvordan AI kan hjælpe dig og dine kolleger i hverdagen? 
+            Del dine forslag og få hjælp til at udvikle dem sammen med vores AI-assistent.
           </p>
         </div>
 
@@ -42,14 +42,14 @@ const Index = () => {
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
               <Lightbulb className="w-6 h-6 text-blue-600" />
             </div>
-            <h3 className="font-semibold mb-3 text-foreground">Produktidéer</h3>
+            <h3 className="font-semibold mb-3 text-foreground">Automatisering af opgaver</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Nye børnetøjsdesigns, materialeforslag, funktionaliteter
+              AI kan hjælpe med at automatisere gentagne processer
             </p>
             <div className="text-xs text-muted-foreground">
-              <div className="mb-1">• "Jakke med reflekterende detaljer"</div>
-              <div className="mb-1">• "Bukser med voksende ben"</div>
-              <div>• "Allergivenligt undertøj"</div>
+              <div className="mb-1">• "Automatisk svar på almindelige spørgsmål"</div>
+              <div className="mb-1">• "AI til at sortere indgående emails"</div>
+              <div>• "Chatbot til kundeservice"</div>
             </div>
           </div>
 
@@ -57,14 +57,14 @@ const Index = () => {
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <ArrowRight className="w-6 h-6 text-green-600" />
             </div>
-            <h3 className="font-semibold mb-3 text-foreground">Procesforbedringar</h3>
+            <h3 className="font-semibold mb-3 text-foreground">Smarte arbejdsværktøjer</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Salgsprocesser, kundeservice, leveringsløsninger
+              AI-drevne værktøjer til daglige arbejdsopgaver
             </p>
             <div className="text-xs text-muted-foreground">
-              <div className="mb-1">• "Hurtigere størrelseguide"</div>
-              <div className="mb-1">• "Personlige anbefalinger"</div>
-              <div>• "Nem ombytning online"</div>
+              <div className="mb-1">• "AI-assistent til planlægning af møder"</div>
+              <div className="mb-1">• "Intelligent filorganisering"</div>
+              <div>• "Automatisk rapportgenerering"</div>
             </div>
           </div>
 
@@ -72,14 +72,14 @@ const Index = () => {
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
               <Lightbulb className="w-6 h-6 text-purple-600" />
             </div>
-            <h3 className="font-semibold mb-3 text-foreground">Kundeoplevelse</h3>
+            <h3 className="font-semibold mb-3 text-foreground">Beslutningsstøtte</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Marketing, kampagner, kundeengagement
+              AI til bedre beslutninger og indsigter
             </p>
             <div className="text-xs text-muted-foreground">
-              <div className="mb-1">• "Sæsonkampagner for familier"</div>
-              <div className="mb-1">• "Bæredygtighedshistorier"</div>
-              <div>• "Loyalitetsprogram for forældre"</div>
+              <div className="mb-1">• "Dataanalyse med AI-visualiseringer"</div>
+              <div className="mb-1">• "Forudsigelse af tendenser"</div>
+              <div>• "Intelligent prioritering af opgaver"</div>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ const Index = () => {
         {/* Call to Action */}
         <div className="text-center mb-12">
           <p className="text-lg text-muted-foreground mb-6">
-            <strong>Klar til at dele din idé?</strong> Det tager kun få minutter, og AI hjælper dig undervejs.
+            <strong>Klar til at dele din AI-idé?</strong> Det tager kun få minutter, og vores AI hjælper dig med at forme den.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -111,18 +111,18 @@ const Index = () => {
           <div className="grid md:grid-cols-3 gap-6 text-center">
             <div>
               <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">1</div>
-              <h4 className="font-medium mb-2">Del din idé</h4>
-              <p className="text-sm text-muted-foreground">Fortæl os om dit forslag - hvad, hvorfor og hvem det hjælper</p>
+              <h4 className="font-medium mb-2">Del din AI-idé</h4>
+              <p className="text-sm text-muted-foreground">Beskriv hvordan AI kan hjælpe dig eller dine kolleger i hverdagen</p>
             </div>
             <div>
               <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">2</div>
-              <h4 className="font-medium mb-2">AI-eksperter hjælper</h4>
-              <p className="text-sm text-muted-foreground">Vores AI-team stiller spørgsmål og hjælper med at udvikle idéen</p>
+              <h4 className="font-medium mb-2">AI-chat hjælper dig</h4>
+              <p className="text-sm text-muted-foreground">Vores AI-assistent stiller spørgsmål og hjælper med at udbygge din idé</p>
             </div>
             <div>
               <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">3</div>
-              <h4 className="font-medium mb-2">Fagfolk vurderer</h4>
-              <p className="text-sm text-muted-foreground">Eksperter fra den relevante afdeling gennemgår det færdige forslag</p>
+              <h4 className="font-medium mb-2">Eksperter vurderer</h4>
+              <p className="text-sm text-muted-foreground">IT-afdelingen gennemgår forslaget og beslutter implementering</p>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@ const Index = () => {
         {/* Final encouragement */}
         <div className="text-center mb-8">
           <p className="text-base text-muted-foreground">
-            💡 <strong>Husk:</strong> Alle de bedste produkter startede som en simpel idé fra nogen som dig!
+            💡 <strong>Husk:</strong> De bedste arbejdsværktøjer kommer fra idéer fra medarbejdere som dig!
           </p>
         </div>
 

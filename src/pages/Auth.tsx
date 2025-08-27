@@ -54,15 +54,15 @@ const Auth = () => {
          style={{ background: 'var(--gradient-subtle)' }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">LUXKIDS Idéplatform</h1>
-          <p className="text-muted-foreground mb-2">Kom med i innovationsteamet</p>
-          <p className="text-sm text-muted-foreground">Dine idéer kan skabe de næste bestsellere! 🌟</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">LUXKIDS AI Idéplatform</h1>
+          <p className="text-muted-foreground mb-2">Kom med i AI-innovationsteamet</p>
+          <p className="text-sm text-muted-foreground">Dine AI-idéer kan forenkle vores arbejdsdag! 🤖</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
           <CardHeader>
             <CardTitle>Velkommen til teamet</CardTitle>
-            <CardDescription>Log ind for at dele dine idéer og se dem blive til virkelighed</CardDescription>
+            <CardDescription>Log ind for at dele dine AI-idéer og se dem blive til virkelighed</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">

@@ -42,42 +42,48 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
           </div>
           Del din idé
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Beskriv din AI-idé så detaljeret som muligt. Vi hjælper dig med at udvikle den videre!
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Titel</Label>
+            <Label htmlFor="title">Hvilken AI-løsning har du i tankerne? <span className="text-muted-foreground">(f.eks. "Chatbot til kundeservice")</span></Label>
             <Input
               id="title"
-              placeholder="F.eks. nyt børnetøjsdesign eller produktforbedring"
+              placeholder="Skriv en kort beskrivelse af din AI-idé"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Fortæl mere om din AI-idé <span className="text-muted-foreground">(Hvad skal den gøre? Hvorfor vil det hjælpe? Hvem vil det gavne?)</span></Label>
           <Textarea
             id="description"
-            placeholder="Beskriv din idé. AI hjælper med at forbedre den."
+            placeholder="Beskriv din AI-løsning i detaljer: Hvilken opgave skal AI hjælpe med? Hvilke problemer vil det løse? Hvordan vil det forbedre arbejdet? Eksempel: 'En chatbot til kundeservice som kan svare på de mest almindelige spørgsmål automatisk, så vores medarbejdere kan fokusere på de mere komplekse henvendelser...'"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={4}
+            rows={6}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="department">Afdeling</Label>
+          <Label htmlFor="department">Hvilken afdeling ville få mest glæde af denne AI-løsning?</Label>
           <Select value={department} onValueChange={setDepartment}>
             <SelectTrigger id="department" className="w-full">
-              <SelectValue placeholder="Vælg afdeling" />
+              <SelectValue placeholder="Vælg den mest relevante afdeling" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="salg">Salg</SelectItem>
-              <SelectItem value="marketing">Marketing</SelectItem>
-              <SelectItem value="indkøb">Indkøb</SelectItem>
-              <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="lager">Lager</SelectItem>
+              <SelectItem value="salg">Salg - kundehenvendelser og salgsstøtte</SelectItem>
+              <SelectItem value="marketing">Marketing - kampagner og kommunikation</SelectItem>
+              <SelectItem value="indkøb">Indkøb - leverandørhåndtering og bestillinger</SelectItem>
+              <SelectItem value="design">Design - produktudvikling og kreative processer</SelectItem>
+              <SelectItem value="lager">Lager - logistik og lagerstyring</SelectItem>
+              <SelectItem value="hr">HR - medarbejderprocesser og administration</SelectItem>
+              <SelectItem value="økonomi">Økonomi - rapportering og dataanalyse</SelectItem>
+              <SelectItem value="it">IT - tekniske processer og systemvedligeholdelse</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -88,11 +94,11 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
             loading || !title.trim() || !description.trim() || !department
           }
         >
-          {loading ? 'Opretter forslag...' : 'Start AI-samarbejde'}
+          {loading ? 'Sender din AI-idé...' : 'Send min AI-idé til vurdering'}
           <Send className="ml-2 w-4 h-4" />
         </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Dine idéer hjælper os med at forbedre børnetøj
+            🤖 Din AI-idé bliver sendt til eksperter som vurderer mulighederne for implementering
           </p>
         </form>
       </CardContent>

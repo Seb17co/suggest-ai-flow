@@ -714,6 +714,13 @@ const Admin = () => {
                                       {suggestion.prd}
                                     </pre>
                                   </ScrollArea>
+                                  <Button
+                                    className="w-full mt-3"
+                                    onClick={() => navigate(`/admin/idea/${suggestion.id}`)}
+                                  >
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    Opret idé
+                                  </Button>
                                 </div>
                               )}
                             </div>

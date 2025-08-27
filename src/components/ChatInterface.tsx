@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -31,6 +31,8 @@ interface ChatInterfaceProps {
   onBack: () => void;
   onComplete: () => void;
 }
+
+const MAX_ROUNDS = 5;
 
 const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>(
@@ -73,8 +75,8 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
     setPendingAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const sendMessage = async () => {
-    if ((!input.trim() && pendingAttachments.length === 0) || loading || conversationRound >= 5) return;
+  const sendMessage = useCallback(async () => {
+    if ((!input.trim() && pendingAttachments.length === 0) || loading || conversationRound >= MAX_ROUNDS) return;
 
     const messageContent = input.trim() || (pendingAttachments.length > 0 ? 'Har vedhæftet filer til gennemgang' : '');
     const userMessage: Message = { 
@@ -98,13 +100,12 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
           : messageContent
       };
 
-      // Send the actual conversation messages to the AI function
-      // The AI function will add its own system message with proper context from the database
-      const conversationMessages = messages.filter(msg => msg.role === 'user' || msg.role === 'assistant');
-      
+      // Send the actual conversation messages to the AI function. Since
+      // our messages array only contains user/assistant roles we can send
+      // it directly without additional filtering.
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
-          messages: [...conversationMessages, messageForAI],
+          messages: [...messages, messageForAI],
           suggestionId: suggestion.id
         }
       });
@@ -117,19 +118,19 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
       setConversationRound(data.conversationRound || conversationRound + 1);
 
       // Update the suggestion in the database
-      const conversationData: Message[] = updatedMessages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-        attachments: msg.attachments
-      }));
-
       await supabase
         .from('suggestions')
-        .update({ ai_conversation: conversationData })
+        .update({
+          ai_conversation: updatedMessages.map(({ role, content, attachments }) => ({
+            role,
+            content,
+            attachments
+          }))
+        })
         .eq('id', suggestion.id);
 
-      // Auto-suggest completion after 5 rounds
-      if (data.conversationRound >= 5) {
+      // Auto-suggest completion after max rounds
+      if (data.conversationRound >= MAX_ROUNDS) {
         setTimeout(() => {
           toast.info('Samtalen er nu færdig! Du kan indsende din forbedrede idé.');
         }, 1000);
@@ -141,16 +142,16 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, pendingAttachments, loading, conversationRound, messages, suggestion.id]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
+  }, [sendMessage]);
 
-  const markAsComplete = async () => {
+  const markAsComplete = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -182,7 +183,7 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
     } finally {
       setLoading(false);
     }
-  };
+  }, [messages, suggestion.id, onComplete]);
 
   const renderAttachment = (attachment: { url: string; name: string; type: string }) => {
     const isImage = attachment.type.startsWith('image/');
@@ -273,8 +274,8 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
     );
   }
 
-  const progressPercentage = Math.min((conversationRound / 5) * 100, 100);
-  const isConversationComplete = conversationRound >= 5;
+  const progressPercentage = Math.min((conversationRound / MAX_ROUNDS) * 100, 100);
+  const isConversationComplete = conversationRound >= MAX_ROUNDS;
 
   return (
     <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
@@ -293,7 +294,7 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
             {!isConversationComplete && (
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {conversationRound}/5 spørgsmål
+                {conversationRound}/{MAX_ROUNDS} spørgsmål
               </Badge>
             )}
             {isConversationComplete && (
@@ -430,7 +431,7 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
           
           {isConversationComplete && (
             <div className="text-xs text-muted-foreground text-center">
-              Samtalen er afsluttet efter 5 spørgsmål. Din idé er nu klar til indsendelse.
+              Samtalen er afsluttet efter {MAX_ROUNDS} spørgsmål. Din idé er nu klar til indsendelse.
             </div>
           )}
         </div>
@@ -450,7 +451,7 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
               Fortsæt samtalen for at forbedre idéen før indsendelse (mindst 2 spørgsmål)
             </p>
           )}
-          {conversationRound >= 2 && conversationRound < 5 && (
+          {conversationRound >= 2 && conversationRound < MAX_ROUNDS && (
             <p className="text-xs text-muted-foreground mt-1 text-center">
               Du kan indsende nu eller fortsætte samtalen for yderligere forbedringer
             </p>

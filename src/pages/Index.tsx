@@ -85,7 +85,7 @@ const Index = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center">
+        <div className="text-center mb-12">
           <p className="text-lg text-muted-foreground mb-6">
             <strong>Klar til at dele din idé?</strong> Det tager kun få minutter, og AI hjælper dig undervejs.
           </p>
@@ -102,6 +102,35 @@ const Index = () => {
 
           <p className="text-sm text-muted-foreground mt-4">
             Ingen teknisk baggrund nødvendig - bare gode idéer!
+          </p>
+        </div>
+
+        {/* How it works */}
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg p-8 mb-12 border">
+          <h3 className="text-xl font-semibold text-center mb-6 text-foreground">Sådan virker det</h3>
+          <div className="grid md:grid-cols-3 gap-6 text-center">
+            <div>
+              <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">1</div>
+              <h4 className="font-medium mb-2">Del din idé</h4>
+              <p className="text-sm text-muted-foreground">Fortæl os om dit forslag - hvad, hvorfor og hvem det hjælper</p>
+            </div>
+            <div>
+              <div className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">2</div>
+              <h4 className="font-medium mb-2">AI-eksperter hjælper</h4>
+              <p className="text-sm text-muted-foreground">Vores AI-team stiller spørgsmål og hjælper med at udvikle idéen</p>
+            </div>
+            <div>
+              <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">3</div>
+              <h4 className="font-medium mb-2">Fagfolk vurderer</h4>
+              <p className="text-sm text-muted-foreground">Eksperter fra den relevante afdeling gennemgår det færdige forslag</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Final encouragement */}
+        <div className="text-center mb-8">
+          <p className="text-base text-muted-foreground">
+            💡 <strong>Husk:</strong> Alle de bedste produkter startede som en simpel idé fra nogen som dig!
           </p>
         </div>
 

@@ -42,42 +42,45 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
           </div>
           Del din idé
         </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Beskriv din idé så detaljeret som muligt. Vi hjælper dig med at udvikle den videre!
+        </p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Titel</Label>
+            <Label htmlFor="title">Hvad er din idé? <span className="text-muted-foreground">(f.eks. "Reflekterende vinterjakke")</span></Label>
             <Input
               id="title"
-              placeholder="F.eks. nyt børnetøjsdesign eller produktforbedring"
+              placeholder="Skriv en kort, beskrivende titel for din idé"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Fortæl mere om din idé <span className="text-muted-foreground">(Hvad? Hvorfor? Hvem vil det hjælpe?)</span></Label>
           <Textarea
             id="description"
-            placeholder="Beskriv din idé. AI hjælper med at forbedre den."
+            placeholder="Beskriv din idé i detaljer: Hvad skal produktet/løsningen kunne? Hvilket problem løser det? Hvorfor er det en god idé? Eksempel: 'Jeg tænker på en vinterjakke med reflekterende striber, fordi mange børn går til skole i mørke. Det vil gøre dem mere synlige for bilister...'"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            rows={4}
+            rows={6}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="department">Afdeling</Label>
+          <Label htmlFor="department">Hvilken afdeling kan bedst hjælpe med at realisere idéen?</Label>
           <Select value={department} onValueChange={setDepartment}>
             <SelectTrigger id="department" className="w-full">
-              <SelectValue placeholder="Vælg afdeling" />
+              <SelectValue placeholder="Vælg den mest relevante afdeling" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="salg">Salg</SelectItem>
-              <SelectItem value="marketing">Marketing</SelectItem>
-              <SelectItem value="indkøb">Indkøb</SelectItem>
-              <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="lager">Lager</SelectItem>
+              <SelectItem value="salg">Salg - kundevendte løsninger og salgsstrategi</SelectItem>
+              <SelectItem value="marketing">Marketing - kampagner og kommunikation</SelectItem>
+              <SelectItem value="indkøb">Indkøb - leverandører og materialer</SelectItem>
+              <SelectItem value="design">Design - produktudvikling og udseende</SelectItem>
+              <SelectItem value="lager">Lager - logistik og distribution</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -88,11 +91,11 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
             loading || !title.trim() || !description.trim() || !department
           }
         >
-          {loading ? 'Opretter forslag...' : 'Start AI-samarbejde'}
+          {loading ? 'Sender din idé...' : 'Send min idé til udvikling'}
           <Send className="ml-2 w-4 h-4" />
         </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Dine idéer hjælper os med at forbedre børnetøj
+            🚀 Din idé bliver sendt til eksperter som hjælper med at udvikle den videre
           </p>
         </form>
       </CardContent>

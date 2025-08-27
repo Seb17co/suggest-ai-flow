@@ -170,7 +170,7 @@ const Dashboard = () => {
               <h2 className="text-xl font-semibold text-foreground">
                 Velkommen tilbage, {profile?.full_name || user?.email}!
               </h2>
-              <p className="text-sm text-muted-foreground">Hvordan kan AI hjælpe Luxkids?</p>
+              <p className="text-sm text-muted-foreground">Klar til at dele dine næste store idé? 💡</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Lightbulb, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import {
   Select,
   SelectTrigger,
@@ -14,20 +13,18 @@ import {
 } from '@/components/ui/select';
 
 interface SuggestionFormProps {
-  onSubmit: (title: string, description: string, department: string) => void;
+  onSubmit: (description: string, department: string) => void;
   loading?: boolean;
 }
 
 const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [department, setDepartment] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim() && description.trim() && department) {
-      onSubmit(title.trim(), description.trim(), department);
-      setTitle('');
+    if (description.trim() && department) {
+      onSubmit(description.trim(), department);
       setDescription('');
       setDepartment('');
     }
@@ -45,16 +42,6 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titel</Label>
-            <Input
-              id="title"
-              placeholder="F.eks. nyt børnetøjsdesign eller produktforbedring"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
           <div className="space-y-2">
             <Label htmlFor="description">Beskrivelse</Label>
           <Textarea
@@ -85,7 +72,7 @@ const SuggestionForm = ({ onSubmit, loading = false }: SuggestionFormProps) => {
           type="submit"
           className="w-full"
           disabled={
-            loading || !title.trim() || !description.trim() || !department
+            loading || !description.trim() || !department
           }
         >
           {loading ? 'Opretter forslag...' : 'Start AI-samarbejde'}

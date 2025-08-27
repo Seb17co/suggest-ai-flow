@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ModeToggle } from "./components/ModeToggle";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -19,6 +20,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <div className="fixed top-4 right-4 z-50">
+            <ModeToggle />
+          </div>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

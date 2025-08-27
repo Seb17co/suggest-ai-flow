@@ -83,8 +83,12 @@ const Dashboard = () => {
     }
   };
 
+  const generateTitle = (description: string) => {
+    const words = description.trim().split(/\s+/).slice(0, 5);
+    return words.join(' ') + (words.length === 5 ? '...' : '');
+  };
+
   const createSuggestion = async (
-    title: string,
     description: string,
     department: string
   ) => {
@@ -96,7 +100,7 @@ const Dashboard = () => {
         .from('suggestions')
         .insert({
           user_id: user.id,
-          title,
+          title: generateTitle(description),
           description,
           department,
           status: 'pending'

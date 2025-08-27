@@ -33,10 +33,17 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    // Remove the hardcoded initial message - AI will provide proper greeting with context
-    ...suggestion.ai_conversation
-  ]);
+  const [messages, setMessages] = useState<Message[]>(
+    suggestion.ai_conversation.length > 0
+      ? [...suggestion.ai_conversation]
+      : [
+          {
+            role: 'assistant',
+            content:
+              'Hej! Jeg er din idéassistent. Beskriv din idé i helt almindeligt sprog, så hjælper jeg dig videre.',
+          },
+        ]
+  );
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -110,15 +117,15 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
       setConversationRound(data.conversationRound || conversationRound + 1);
 
       // Update the suggestion in the database
-      const conversationData = updatedMessages.map(msg => ({
+      const conversationData: Message[] = updatedMessages.map(msg => ({
         role: msg.role,
         content: msg.content,
         attachments: msg.attachments
       }));
-      
+
       await supabase
         .from('suggestions')
-        .update({ ai_conversation: conversationData as any })
+        .update({ ai_conversation: conversationData })
         .eq('id', suggestion.id);
 
       // Auto-suggest completion after 5 rounds
@@ -148,15 +155,16 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
       setLoading(true);
       
       // Update suggestion status to indicate it's ready for admin review
-      const conversationData = messages.map(msg => ({
+      const conversationData: Message[] = messages.map(msg => ({
         role: msg.role,
-        content: msg.content
+        content: msg.content,
+        attachments: msg.attachments
       }));
-      
+
       await supabase
         .from('suggestions')
-        .update({ 
-          ai_conversation: conversationData as any,
+        .update({
+          ai_conversation: conversationData,
           status: 'pending'
         })
         .eq('id', suggestion.id);
@@ -398,7 +406,11 @@ const ChatInterface = ({ suggestion, onBack, onComplete }: ChatInterfaceProps) =
           
           <div className="flex gap-2">
             <Input
-              placeholder={isConversationComplete ? "Samtale afsluttet - indsend idé" : "Fortsæt samtalen..."}
+              placeholder={
+                isConversationComplete
+                  ? "Samtale afsluttet - indsend idé"
+                  : "Skriv din besked her..."
+              }
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}

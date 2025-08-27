@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { LogOut, Settings, Lightbulb, Clock, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
+import { LogOut, Settings, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import SuggestionForm from '@/components/SuggestionForm';
 import ChatInterface from '@/components/ChatInterface';
 import { useNavigate } from 'react-router-dom';
+
+interface AIMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  attachments?: Array<{
+    url: string;
+    name: string;
+    type: string;
+  }>;
+}
 
 interface Suggestion {
   id: string;
@@ -16,7 +24,7 @@ interface Suggestion {
   description: string;
   department: string;
   status: 'pending' | 'approved' | 'rejected';
-  ai_conversation: any[];
+  ai_conversation: AIMessage[];
   created_at: string;
   admin_notes?: string;
   prd?: string | null;
@@ -120,17 +128,6 @@ const Dashboard = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-success-light text-success-foreground';
-      case 'rejected':
-        return 'bg-destructive/10 text-destructive';
-      default:
-        return 'bg-warning-light text-warning-foreground';
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -142,141 +139,78 @@ const Dashboard = () => {
     );
   }
 
-  if (activeSuggestion) {
-    return (
-      <div className="min-h-screen p-4" style={{ background: 'var(--gradient-subtle)' }}>
-        <div className="max-w-4xl mx-auto">
-          <ChatInterface
-            suggestion={activeSuggestion}
-            onBack={() => setActiveSuggestion(null)}
-            onComplete={() => {
-              setActiveSuggestion(null);
-              fetchUserData();
-            }}
-          />
+  return (
+    <div className="flex h-screen" style={{ background: 'var(--gradient-subtle)' }}>
+      {/* Sidebar */}
+      <div className="w-64 border-r bg-card/50 flex flex-col">
+        <div className="p-4 border-b">
+          <Button className="w-full" onClick={() => setActiveSuggestion(null)}>
+            Ny idé
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {suggestions.length === 0 ? (
+            <p className="p-4 text-sm text-muted-foreground">
+              Ingen forslag endnu.
+            </p>
+          ) : (
+            suggestions.map((suggestion) => (
+              <div
+                key={suggestion.id}
+                className={`p-3 cursor-pointer text-sm hover:bg-accent ${
+                  activeSuggestion?.id === suggestion.id ? 'bg-accent' : ''
+                }`}
+                onClick={() => setActiveSuggestion(suggestion)}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate flex-1">{suggestion.title}</span>
+                  {getStatusIcon(suggestion.status)}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="p-4 border-t space-y-2">
+          {profile?.role === 'admin' && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/admin')}
+            >
+              <Settings className="w-4 h-4 mr-2" /> Admin
+            </Button>
+          )}
+          <Button variant="outline" className="w-full" onClick={signOut}>
+            <LogOut className="w-4 h-4 mr-2" /> Log ud
+          </Button>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen p-4" style={{ background: 'var(--gradient-subtle)' }}>
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-foreground">Forslagsplatform</h1>
-            <div className="hidden md:block w-px h-12 bg-border"></div>
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">
-                Velkommen tilbage, {profile?.full_name || user?.email}!
-              </h2>
-              <p className="text-sm text-muted-foreground">Hvordan kan AI hjælpe Luxkids?</p>
+      {/* Main area */}
+      <div className="flex-1 flex flex-col">
+        {activeSuggestion ? (
+          <div className="p-4 flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto h-full">
+              <ChatInterface
+                suggestion={activeSuggestion}
+                onBack={() => setActiveSuggestion(null)}
+                onComplete={() => {
+                  setActiveSuggestion(null);
+                  fetchUserData();
+                }}
+              />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {profile?.role === 'admin' && (
-              <Button variant="outline" onClick={() => navigate('/admin')}>
-                <Settings className="w-4 h-4 mr-2" />
-                Admin Panel
-              </Button>
-            )}
-            <Button variant="outline" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+        ) : (
+          <div className="flex flex-1 items-center justify-center p-4">
+            <div className="max-w-md w-full">
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Start en ny idé
+              </h2>
+              <SuggestionForm onSubmit={createSuggestion} loading={loading} />
+            </div>
           </div>
-        </div>
-
-
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Suggestion Form */}
-          <div className="lg:col-span-1">
-            <SuggestionForm onSubmit={createSuggestion} loading={loading} />
-          </div>
-
-          {/* Suggestions List */}
-          <div className="lg:col-span-2">
-            <Card className="backdrop-blur-sm bg-card/95" style={{ boxShadow: 'var(--shadow-medium)' }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-primary" />
-                  Dine forslag
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {suggestions.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Lightbulb className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      Ingen forslag endnu. Del din første idé for at komme i gang!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {suggestions.map((suggestion) => (
-                      <div
-                        key={suggestion.id}
-                        className="p-4 border rounded-lg hover:shadow-sm transition-shadow cursor-pointer"
-                        onClick={() => suggestion.status === 'pending' && suggestion.ai_conversation.length === 0 
-                          ? setActiveSuggestion(suggestion)
-                          : null
-                        }
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold">{suggestion.title}</h3>
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(suggestion.status)}
-                            <Badge
-                              variant="secondary"
-                              className={getStatusColor(suggestion.status)}
-                            >
-                              {suggestion.status}
-                            </Badge>
-                          </div>
-                        </div>
-                        <p className="text-xs mb-1 capitalize text-muted-foreground">
-                          Afdeling: {suggestion.department}
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {suggestion.description}
-                        </p>
-                        {suggestion.admin_notes && (
-                          <div className="bg-muted p-3 rounded-lg">
-                            <p className="text-sm font-medium mb-1">Admin-noter:</p>
-                            <p className="text-sm text-muted-foreground">{suggestion.admin_notes}</p>
-                          </div>
-                        )}
-                        {suggestion.prd && (
-                          <div className="bg-muted p-3 rounded-lg mt-2">
-                            <p className="text-sm font-medium mb-1">PRD:</p>
-                            <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-                              {suggestion.prd}
-                            </p>
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
-                          <span>
-                            Oprettet: {new Date(suggestion.created_at).toLocaleDateString()}
-                          </span>
-                          {suggestion.status === 'pending' && suggestion.ai_conversation.length === 0 && (
-                            <Button size="sm" variant="outline">
-                              Fortsæt med AI
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <div className="text-center py-6 border-t">
-          <p className="text-sm text-muted-foreground">© 2025 Internt værktøj</p>
-        </div>
+        )}
       </div>
     </div>
   );
